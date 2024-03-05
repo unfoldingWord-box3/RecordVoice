@@ -1,6 +1,10 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
+import { recorder } from 'node-record-lpcm16';
+import { createWriteStream } from 'fs';
+import { tmpdir } from 'os';
+
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -12,10 +16,11 @@ import { getNonce } from "../utilities/getNonce";
  * - Setting the HTML (and by proxy CSS/JavaScript) content of the webview panel
  * - Setting message listeners so data can be passed between the webview and extension
  */
-export class HelloWorldPanel {
-  public static currentPanel: HelloWorldPanel | undefined;
+export class RecordingPanel {
+  public static currentPanel: RecordingPanel | undefined;
   private readonly _panel: WebviewPanel;
   private _disposables: Disposable[] = [];
+  private static filePath:string|null = null;
 
   /**
    * The HelloWorldPanel class private constructor (called only from the render method).
@@ -44,16 +49,16 @@ export class HelloWorldPanel {
    * @param extensionUri The URI of the directory containing the extension.
    */
   public static render(extensionUri: Uri) {
-    if (HelloWorldPanel.currentPanel) {
+    if (RecordingPanel.currentPanel) {
       // If the webview panel already exists reveal it
-      HelloWorldPanel.currentPanel._panel.reveal(ViewColumn.One);
+      RecordingPanel.currentPanel._panel.reveal(ViewColumn.One);
     } else {
       // If a webview panel does not already exist create and show a new one
       const panel = window.createWebviewPanel(
         // Panel view type
-        "showHelloWorld",
+        "record-voice",
         // Panel title
-        "Hello World",
+        "Record Voice",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations
@@ -65,7 +70,7 @@ export class HelloWorldPanel {
         }
       );
 
-      HelloWorldPanel.currentPanel = new HelloWorldPanel(panel, extensionUri);
+      RecordingPanel.currentPanel = new RecordingPanel(panel, extensionUri);
     }
   }
 
@@ -73,7 +78,7 @@ export class HelloWorldPanel {
    * Cleans up and disposes of webview resources when the webview panel is closed.
    */
   public dispose() {
-    HelloWorldPanel.currentPanel = undefined;
+    RecordingPanel.currentPanel = undefined;
 
     // Dispose of the current webview panel
     this._panel.dispose();
@@ -137,14 +142,37 @@ export class HelloWorldPanel {
       (message: any) => {
         const command = message.command;
         const text = message.text;
+        console.log(`_setWebviewMessageListener - see message ${command}:${text}`)
 
         switch (command) {
           case "hello":
             // Code that should run in response to the hello message command
             window.showInformationMessage(text);
             return;
-          // Add more switch case statements here as more webview message commands
-          // are created within the webview context (i.e. inside media/main.js)
+          case "extension.startRecording":
+            window.showInformationMessage(text);
+            RecordingPanel.filePath = `${tmpdir()}/recording.wav`;
+            const fileStream = createWriteStream(RecordingPanel.filePath, { encoding: 'binary' });
+
+            window.showInformationMessage('Started recording voice.');
+            console.log(`extension.startRecording - Recording Starting ${RecordingPanel.filePath}`)
+
+            recorder.record({
+              sampleRate: 16000,
+              threshold: 0.5
+            })
+            .stream()
+            .pipe(fileStream);
+
+            console.log(`extension.startRecording - Recording Started! ${RecordingPanel.filePath}`)
+
+            return;
+
+            case "extension.stopRecording":
+            window.showInformationMessage(text);
+            recorder.stop();
+            console.log(`extension.stopRecording - Recording Stopped! ${RecordingPanel.filePath}`)
+            return;
         }
       },
       undefined,
