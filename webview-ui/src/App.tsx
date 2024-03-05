@@ -12,8 +12,8 @@ function App() {
 
   return (
     <main>
-      <h1>Hello World!</h1>
-      <VSCodeButton onClick={handleHowdyClick}>Howdy!</VSCodeButton>
+      <h1>Speak Now!</h1>
+      <VSCodeButton onClick={handleHowdyClick}>Record</VSCodeButton>
     </main>
   );
 }

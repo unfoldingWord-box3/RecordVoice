@@ -1,12 +1,12 @@
 import { commands, window, ExtensionContext } from "vscode";
-import { recorder } from 'node-record-lpcm16'
-import { createWriteStream } from 'fs'
-import { tmpdir } from 'os'
+import { recorder } from 'node-record-lpcm16';
+import { createWriteStream } from 'fs';
+import { tmpdir } from 'os';
 import { HelloWorldPanel } from "./panels/HelloWorldPanel";
 
 export function activate(context: ExtensionContext) {
   // Create the show hello world command
-  const showHelloWorldCommand = commands.registerCommand("hello-world.showHelloWorld", () => {
+  const showHelloWorldCommand = commands.registerCommand("record-voice.recordVoicePrompt", () => {
     HelloWorldPanel.render(context.extensionUri);
   });
 
@@ -32,5 +32,7 @@ export function activate(context: ExtensionContext) {
     }));
 
     context.subscriptions.push(disposable);
-});
+  });
+
+}
 
