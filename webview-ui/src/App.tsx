@@ -1,6 +1,6 @@
 import { vscode } from "./utilities/vscode";
 import { useState } from 'react'
-import { VSCodeButton, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 
 function App() {
@@ -41,7 +41,7 @@ function App() {
         :
         <main>
           <h1>Speak Now!</h1>
-          <VSCodeTextField value={value} onInput={e => handleTextChange(e.target?.value || '')} />
+          <VSCodeTextArea value={value} onInput={e => handleTextChange(e.target?.value || '')} />
           <VSCodeButton onClick={handleRecordClick}>Record</VSCodeButton>
         </main>
   )

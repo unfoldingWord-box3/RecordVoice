@@ -12,16 +12,6 @@
       {
         "command": "record-voice.recordVoicePrompt",
         "title": "Record Voice: Show"
-      },
-      {
-        "key": "cmd+u",
-        "command": "workbench.action.chat.startVoiceChat",
-        "when": "!voiceChatInProgress"
-      },
-      {
-          "key": "cmd+u",
-          "command": "workbench.action.chat.stopListeningAndSubmit",
-          "when": "voiceChatInProgress"
       }
     ]
   },
